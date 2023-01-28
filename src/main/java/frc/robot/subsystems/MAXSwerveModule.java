@@ -36,7 +36,7 @@ public class MAXSwerveModule {
    * MAXSwerve Module built with NEOs, SPARKS MAX, and a Through Bore
    * Encoder.
    */
-  public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset) {
+  public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset, boolean drivingReversed) {
     m_drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
     m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
 
@@ -44,6 +44,8 @@ public class MAXSwerveModule {
     // them. This is useful in case a SPARK MAX is swapped out.
     m_drivingSparkMax.restoreFactoryDefaults();
     m_turningSparkMax.restoreFactoryDefaults();
+
+    m_drivingSparkMax.setInverted(drivingReversed);
 
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
     m_drivingEncoder = m_drivingSparkMax.getEncoder();
@@ -135,12 +137,17 @@ public class MAXSwerveModule {
         new Rotation2d(m_turningEncoder.getPosition() - m_chassisAngularOffset));
   }
 
+  public double GetModuleAngle(){
+    return m_turningEncoder.getPosition();
+  }
+
   /**
    * Sets the desired state for the module.
    *
    * @param desiredState Desired state with speed and angle.
    */
   public void setDesiredState(SwerveModuleState desiredState) {
+
     // Apply chassis angular offset to the desired state.
     SwerveModuleState correctedDesiredState = new SwerveModuleState();
     correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
